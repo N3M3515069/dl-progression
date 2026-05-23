@@ -57,3 +57,39 @@ No mode collapse observed at any point. Compare to Vanilla GAN where D_loss cras
 
 ### Critic
 Input: `(N, 1, 64, 64)` grayscale image
+
+Conv2d(1, 16, 4, 2, 1)       → (N, 16, 32, 32)    LeakyReLU(0.2)
+Conv2d(16, 32, 4, 2, 1)      → (N, 32, 16, 16)    InstanceNorm → LeakyReLU(0.2)
+Conv2d(32, 64, 4, 2, 1)      → (N, 64, 8, 8)      InstanceNorm → LeakyReLU(0.2)
+Conv2d(64, 128, 4, 2, 1)     → (N, 128, 4, 4)     InstanceNorm → LeakyReLU(0.2)
+Conv2d(128, 1, 4, 2, 0)      → (N, 1, 1, 1)       (no activation)
+
+### Generator
+Input: `(N, 100, 1, 1)` noise vector
+
+ConvTranspose2d(100, 256, 4, 1, 0)  → (N, 256, 4, 4)    BatchNorm → ReLU
+ConvTranspose2d(256, 128, 4, 2, 1)  → (N, 128, 8, 8)    BatchNorm → ReLU
+ConvTranspose2d(128, 64, 4, 2, 1)   → (N, 64, 16, 16)   BatchNorm → ReLU
+ConvTranspose2d(64, 32, 4, 2, 1)    → (N, 32, 32, 32)   BatchNorm → ReLU
+ConvTranspose2d(32, 1, 4, 2, 1)     → (N, 1, 64, 64)    Tanh
+
+---
+
+## Training
+
+| Hyperparameter | Value |
+|---|---|
+| Epochs | 10 |
+| Batch size | 64 |
+| Noise dim (z) | 100 |
+| Learning rate | 1e-4 |
+| Optimizer | Adam (β1=0.0, β2=0.9) |
+| Critic iterations per G step | 5 |
+| Gradient penalty λ | 10 |
+| Image size | 64×64 |
+| Weight init | Normal(0, 0.02) |
+
+---
+
+## Stack
+Python, PyTorch, torchvision, TensorBoard, Matplotlib
